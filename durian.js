@@ -162,6 +162,8 @@ function mousemove(event, canvas) {
   hH = 24 + (6 * mPcx);
   hW = 74 + (6 * mPcx);
 
+  sH = 8 + (2 * mPcx);
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   draw();
 }
