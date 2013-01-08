@@ -1,18 +1,39 @@
-function gon(ctx, x, y, d1X, d1Y, d2X, d2Y) {
+var wallDown = 800;
 
-  var grad = ctx.createLinearGradient(x, y, x + d1X, y + d1Y);
-  grad.addColorStop(0.4, "rgb(0, 0, 100)");
-  grad.addColorStop(1, "rgb(100, 0, 0)");
+function gon(list, x, y, d1X, d1Y, d2X, d2Y) {
+  list.push({x: x, y: y, d1X: d1X, d1Y: d1Y, d2X: d2X, d2Y: d2Y});
+}
+
+function render(ctx, list) {
+
+  list.sort(function(l, r) {
+    return l.y - r.y;
+  });
+
+  for(var i = 0; i < list.length; i++) {
+    g = list[i];
+    ctx.fillStyle = "rgb(100, 100, 100)";
+    ctx.beginPath();
+    ctx.moveTo(g.x, g.y);
+    ctx.lineTo(g.x, g.y + wallDown);
+    ctx.lineTo(g.x + g.d1X + g.d2X, g.y + wallDown);
+    ctx.lineTo(g.x + g.d1X + g.d2X, g.y);
+    ctx.fill();
+
+    var grad = ctx.createLinearGradient(g.x, g.y, g.x + g.d1X, g.y + g.d1Y);
+    grad.addColorStop(0.4, "rgb(0, 0, 100)");
+    grad.addColorStop(1, "rgb(100, 0, 0)");
  
-  // assign gradients to fill and stroke styles
-  ctx.fillStyle = grad;
+    // assign gradients to fill and stroke styles
+    ctx.fillStyle = grad;
 
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(x + d1X, y + d1Y);
-  ctx.lineTo(x + d1X + d2X, y + d1Y - d2Y);
-  ctx.lineTo(x + d2X, y - d2Y);
-  ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(g.x, g.y);
+    ctx.lineTo(g.x + g.d1X, g.y + g.d1Y);
+    ctx.lineTo(g.x + g.d1X + g.d2X, g.y + g.d1Y - g.d2Y);
+    ctx.lineTo(g.x + g.d2X, g.y - g.d2Y);
+    ctx.fill();
+  }
 }
 
 var canvas;
@@ -56,33 +77,33 @@ function draw() {
     sY += H;
   }
 
-  ctx.fillStyle = "rgba(200, 0, 0, 0.5)";
-  
+  gons = [];
+
   // Start
   
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   // Up and Right
 
   inc(d2X, -d2Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   inc(d2X, -d2Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   inc(d2X, -d2Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   // Up and Left
 
   inc(-d1X, -d1Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   inc(-d1X, -d1Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   inc(-d1X, -d1Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   var od2X = d2X;
   var od2Y = d2Y;
@@ -95,13 +116,13 @@ function draw() {
   // Down and Left
 
   inc(-d2X, + d2Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   inc(-d2X, + d2Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   //inc(-d2X, + d2Y - sH);
-  //gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  //gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   d2X = od2X;
   d2Y = od2Y;
@@ -113,26 +134,28 @@ function draw() {
   d1Y *= ddD;
 
   inc(-d2X, + d2Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   // Down and Right
 
   inc(d1X, + d1Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   inc(d1X, + d1Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   //inc(d1X, + d1Y - sH);
-  //gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  //gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   inc(d1X, + d1Y - sH);
   d1X = od1X;
   d1Y = od1Y;
-  //gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  //gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   // Repaint the first one
-  gon(ctx, osX, osY, hW, hH, hW, hH);
+  //gon(gons, osX, osY, hW, hH, hW, hH);
+
+  render(ctx, gons);
 }
 
 function mousemove(event, canvas) {
