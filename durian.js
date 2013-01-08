@@ -41,7 +41,7 @@ var ctx;
 
 var hW = 80;
 var hH = 30;
-var sH = 5;
+var sH = 10;
 
 function init() {
   canvas = document.getElementById('scene');
@@ -51,7 +51,7 @@ function init() {
 }
 
 function draw() {
-  var sX = 450;
+  var sX = 600;
   var sY = 300;
 
   var d1X = hW;
@@ -68,7 +68,23 @@ function draw() {
 
   var stepUp = totalSteps * sH;
 
-  var makeupStepDown = stepUp / makeupSteps;
+  var insert = 0;
+
+  // Enable step insertion
+  if(true) {
+    // For now we only insert in pairs.
+    insert = Math.floor(stepUp/(hH * 2)) * 2;
+  }
+
+  totalSteps += insert;
+  makeupSteps += insert;
+
+  // Recompute this... seems weird.
+  stepUp = totalSteps * sH;
+
+  var stepUpMinusInsert = stepUp - (insert * hH)
+
+  var makeupStepDown = stepUpMinusInsert / makeupSteps;
 
   var ddD = 1 + (makeupStepDown / hH);
 
@@ -108,7 +124,7 @@ function draw() {
 
   // Down and Left
 
-  addGons(-d2X, d2Y, 2);
+  addGons(-d2X, d2Y, 2 + insert/2);
 
   d2X = od2X;
   d2Y = od2Y;
@@ -123,7 +139,7 @@ function draw() {
 
   // Down and Right
 
-  addGons(d1X, d1Y, 2);
+  addGons(d1X, d1Y, 2 + insert/2);
 
   inc(d1X, + d1Y - sH);
 
@@ -133,8 +149,8 @@ function draw() {
 function mousemove(event, canvas) {
   mPcx = event.clientY/canvas.height;
 
-  hH = 27 + (6 * mPcx);
-  hW = 79 + (2 * mPcx);
+  hH = 24 + (6 * mPcx);
+  hW = 74 + (6 * mPcx);
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   draw();
