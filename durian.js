@@ -17,7 +17,7 @@ function render(ctx, list) {
     ctx.moveTo(g.x, g.y);
     ctx.lineTo(g.x, g.y + wallDown);
     ctx.lineTo(g.x + g.d1X + g.d2X, g.y + wallDown);
-    ctx.lineTo(g.x + g.d1X + g.d2X, g.y);
+    ctx.lineTo(g.x + g.d1X + g.d2X, g.y + g.d1Y - g.d2Y);
     ctx.fill();
 
     var grad = ctx.createLinearGradient(g.x, g.y, g.x + g.d1X, g.y + g.d1Y);
