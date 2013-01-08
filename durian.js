@@ -12,7 +12,17 @@ function render(ctx, list) {
 
   for(var i = 0; i < list.length; i++) {
     g = list[i];
-    ctx.fillStyle = "rgb(100, 100, 100)";
+
+    var end = g.x + g.d1X + g.d2X;
+    var px = g.d1X / (g.d1X + g.d2X);
+
+    var wall = ctx.createLinearGradient(g.x, 0, end, 0);
+    wall.addColorStop(0.0, "rgb(50, 50, 50)");
+    wall.addColorStop(px, "rgb(50, 50, 50)");
+    wall.addColorStop(px, "rgb(100, 100, 100)");
+    wall.addColorStop(1, "rgb(100, 100, 100)");
+
+    ctx.fillStyle = wall;
     ctx.beginPath();
     ctx.moveTo(g.x, g.y);
     ctx.lineTo(g.x, g.y + wallDown);
@@ -23,7 +33,7 @@ function render(ctx, list) {
     var grad = ctx.createLinearGradient(g.x, g.y, g.x + g.d1X, g.y + g.d1Y);
     grad.addColorStop(0.4, "rgb(0, 0, 100)");
     grad.addColorStop(1, "rgb(100, 0, 0)");
- 
+
     // assign gradients to fill and stroke styles
     ctx.fillStyle = grad;
 
@@ -103,7 +113,7 @@ function draw() {
   }
 
   // Start
-  
+
   gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   // Up and Right
