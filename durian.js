@@ -1,4 +1,12 @@
 function gon(ctx, x, y, d1X, d1Y, d2X, d2Y) {
+
+  var grad = ctx.createLinearGradient(x, y, x + d1X, y + d1Y);
+  grad.addColorStop(0.4, "rgb(0, 0, 100)");
+  grad.addColorStop(1, "rgb(100, 0, 0)");
+ 
+  // assign gradients to fill and stroke styles
+  ctx.fillStyle = grad;
+
   ctx.beginPath();
   ctx.moveTo(x, y);
   ctx.lineTo(x + d1X, y + d1Y);
@@ -11,18 +19,34 @@ function init() {
   var canvas = document.getElementById('scene');
   var ctx = canvas.getContext('2d');
 
-  var hW = 40;
-  var hH = 15;
+  var hW = 80;
+  var hH = 30;
   var sH = 5
-  var sX = 200;
-  var sY = 200;
+  var sX = 450;
+  var sY = 300;
   var d1X = hW;
   var d1Y = hH;
   var d2X = hW;
   var d2Y = hH;
 
-  d2X *= 0.7;
-  d2Y *= 0.7;
+  var osX = sX;
+  var osY = sY;
+
+  // Steps are the up steps, not a platform.
+  var totalSteps = 14;
+  var makeupSteps = 8;
+
+  var stepUp = totalSteps * sH;
+
+  var makeupStepDown = stepUp / makeupSteps;
+
+  // hH is half the height of a step.
+  var ddD = 1 + (makeupStepDown / (hH * 2));
+
+  console.log(makeupStepDown);
+  console.log(ddD);
+
+  var ddD = 1.045;
 
   function inc(W, H) {
     sX += W;
@@ -57,8 +81,10 @@ function init() {
   inc(-d1X, -d1Y - sH);
   gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
 
-  //hH += 10;
-  //hW += 10;
+  var od2X = d2X;
+  var od2Y = d2Y;
+  d2X *= ddD;
+  d2Y *= ddD;
 
   //hH *= 1.3;
   //hW *= 1.3;
@@ -74,6 +100,18 @@ function init() {
   inc(-d2X, + d2Y - sH);
   gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
 
+  d2X = od2X;
+  d2Y = od2Y;
+
+  var od1X = d1X;
+  var od1Y = d1Y;
+
+  d1X *= ddD;
+  d1Y *= ddD;
+
+  inc(-d2X, + d2Y - sH);
+  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+
   // Down and Right
 
   inc(d1X, + d1Y - sH);
@@ -84,5 +122,13 @@ function init() {
 
   inc(d1X, + d1Y - sH);
   gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+
+  inc(d1X, + d1Y - sH);
+  d1X = od1X;
+  d1Y = od1Y;
+  //gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+
+  // Repaint the first one
+  gon(ctx, osX, osY, hW, hH, hW, hH);
  
 }
