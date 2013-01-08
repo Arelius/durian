@@ -15,15 +15,24 @@ function gon(ctx, x, y, d1X, d1Y, d2X, d2Y) {
   ctx.fill();
 }
 
-function init() {
-  var canvas = document.getElementById('scene');
-  var ctx = canvas.getContext('2d');
+var canvas;
+var ctx;
 
-  var hW = 80;
-  var hH = 30;
-  var sH = 5;
+var hW = 80;
+var hH = 30;
+var sH = 5;
+
+function init() {
+  canvas = document.getElementById('scene');
+  ctx = canvas.getContext('2d');
+
+  draw();
+}
+
+function draw() {
   var sX = 450;
   var sY = 300;
+
   var d1X = hW;
   var d1Y = hH;
   var d2X = hW;
@@ -124,5 +133,14 @@ function init() {
 
   // Repaint the first one
   gon(ctx, osX, osY, hW, hH, hW, hH);
- 
+}
+
+function mousemove(event, canvas) {
+  mPcx = event.clientY/canvas.height;
+
+  hH = 27 + (6 * mPcx);
+  hW = 79 + (2 * mPcx);
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  draw();
 }
