@@ -79,31 +79,24 @@ function draw() {
 
   gons = [];
 
+  function addGons(dX, dY, c) {
+    for(var i = 0; i < c; i++) {
+      inc(dX, dY - sH);
+      gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
+    }
+  }
+
   // Start
   
   gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
 
   // Up and Right
 
-  inc(d2X, -d2Y - sH);
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
-
-  inc(d2X, -d2Y - sH);
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
-
-  inc(d2X, -d2Y - sH);
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
+  addGons(d2X, -d2Y, 3);
 
   // Up and Left
 
-  inc(-d1X, -d1Y - sH);
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
-
-  inc(-d1X, -d1Y - sH);
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
-
-  inc(-d1X, -d1Y - sH);
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
+  addGons(-d1X, -d1Y, 3);
 
   var od2X = d2X;
   var od2Y = d2Y;
@@ -115,14 +108,7 @@ function draw() {
 
   // Down and Left
 
-  inc(-d2X, + d2Y - sH);
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
-
-  inc(-d2X, + d2Y - sH);
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
-
-  //inc(-d2X, + d2Y - sH);
-  //gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
+  addGons(-d2X, d2Y, 2);
 
   d2X = od2X;
   d2Y = od2Y;
@@ -133,27 +119,13 @@ function draw() {
   d1X *= ddD;
   d1Y *= ddD;
 
-  inc(-d2X, + d2Y - sH);
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
+  addGons(-d2X, d2Y, 1);
 
   // Down and Right
 
-  inc(d1X, + d1Y - sH);
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
+  addGons(d1X, d1Y, 2);
 
   inc(d1X, + d1Y - sH);
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
-
-  //inc(d1X, + d1Y - sH);
-  //gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
-
-  inc(d1X, + d1Y - sH);
-  d1X = od1X;
-  d1Y = od1Y;
-  //gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
-
-  // Repaint the first one
-  //gon(gons, osX, osY, hW, hH, hW, hH);
 
   render(ctx, gons);
 }
