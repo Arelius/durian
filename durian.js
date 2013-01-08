@@ -21,7 +21,7 @@ function init() {
 
   var hW = 80;
   var hH = 30;
-  var sH = 5
+  var sH = 5;
   var sX = 450;
   var sY = 300;
   var d1X = hW;
@@ -33,20 +33,14 @@ function init() {
   var osY = sY;
 
   // Steps are the up steps, not a platform.
-  var totalSteps = 14;
-  var makeupSteps = 8;
+  var totalSteps = 12;
+  var makeupSteps = 4;
 
   var stepUp = totalSteps * sH;
 
   var makeupStepDown = stepUp / makeupSteps;
 
-  // hH is half the height of a step.
-  var ddD = 1 + (makeupStepDown / (hH * 2));
-
-  console.log(makeupStepDown);
-  console.log(ddD);
-
-  var ddD = 1.045;
+  var ddD = 1 + (makeupStepDown / hH);
 
   function inc(W, H) {
     sX += W;
@@ -97,8 +91,8 @@ function init() {
   inc(-d2X, + d2Y - sH);
   gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
 
-  inc(-d2X, + d2Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  //inc(-d2X, + d2Y - sH);
+  //gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
 
   d2X = od2X;
   d2Y = od2Y;
@@ -120,8 +114,8 @@ function init() {
   inc(d1X, + d1Y - sH);
   gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
 
-  inc(d1X, + d1Y - sH);
-  gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
+  //inc(d1X, + d1Y - sH);
+  //gon(ctx, sX, sY, d1X, d1Y, d2X, d2Y);
 
   inc(d1X, + d1Y - sH);
   d1X = od1X;
