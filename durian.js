@@ -48,12 +48,29 @@ function render(ctx, list) {
 
 var canvas;
 var ctx;
+var gui;
 
 var hW = 80;
 var hH = 30;
 var sH = 10;
 
+var penrose = {
+  hW: 80,
+  hH: 30,
+  sH: 10
+}
+
 function init() {
+  function addredraw(controller) {
+    controller.onChange(function(value) {
+      draw();
+    });
+  }
+  gui = new dat.GUI();
+  addredraw(gui.add(penrose, 'hW'));
+  addredraw(gui.add(penrose, 'hH'));
+  addredraw(gui.add(penrose, 'sH'));
+
   canvas = document.getElementById('scene');
   ctx = canvas.getContext('2d');
 
@@ -61,22 +78,23 @@ function init() {
 }
 
 function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   var sX = 600;
   var sY = 300;
 
-  var d1X = hW;
-  var d1Y = hH;
-  var d2X = hW;
-  var d2Y = hH;
+  var d1X = penrose.hW;
+  var d1Y = penrose.hH;
+  var d2X = penrose.hW;
+  var d2Y = penrose.hH;
 
   var osX = sX;
   var osY = sY;
 
   // Steps are the up steps, not a platform.
   var totalSteps = 12;
-  var makeupSteps = 4;
+  var makeupSteps = 6;
 
-  var stepUp = totalSteps * sH;
+  var stepUp = totalSteps * penrose.sH;
 
   var insert = 0;
 
@@ -90,7 +108,7 @@ function draw() {
   makeupSteps += insert;
 
   // Recompute this... seems weird.
-  stepUp = totalSteps * sH;
+  stepUp = totalSteps * penrose.sH;
 
   var stepUpMinusInsert = stepUp - (insert * hH)
 
@@ -107,7 +125,7 @@ function draw() {
 
   function addGons(dX, dY, c) {
     for(var i = 0; i < c; i++) {
-      inc(dX, dY - sH);
+      inc(dX, dY - penrose.sH);
       gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
     }
   }
@@ -134,7 +152,7 @@ function draw() {
 
   // Down and Left
 
-  addGons(-d2X, d2Y, 2 + insert/2);
+  addGons(-d2X, d2Y, 3 + insert/2);
 
   d2X = od2X;
   d2Y = od2Y;
@@ -149,9 +167,9 @@ function draw() {
 
   // Down and Right
 
-  addGons(d1X, d1Y, 2 + insert/2);
+  addGons(d1X, d1Y, 3 + insert/2);
 
-  inc(d1X, + d1Y - sH);
+  inc(d1X, + d1Y - penrose.sH);
 
   render(ctx, gons);
 }
@@ -159,11 +177,10 @@ function draw() {
 function mousemove(event, canvas) {
   mPcx = event.clientY/canvas.height;
 
-  hH = 24 + (6 * mPcx);
-  hW = 74 + (6 * mPcx);
+  penrose.hH = 24 + (6 * mPcx);
+  penrose.hW = 74 + (6 * mPcx);
 
-  sH = 8 + (2 * mPcx);
+  penrose.sH = 8 + (2 * mPcx);
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
   draw();
 }
