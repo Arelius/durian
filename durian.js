@@ -1,5 +1,22 @@
 var wallDown = 800;
 
+function vmag(a) {
+  return Math.sqrt(a[0] * a[0] + a[1] * a[1]);
+}
+
+function vnorm(a) {
+  var mag = vmag(a);
+  return [a[0]/mag, a[1]/mag];
+}
+
+function vdot(a, b) {
+  return a[0] * b[0] + a[1] * b[1];
+}
+
+function vmult(a, b) {
+  return [a[0] * b, a[1] * b];
+}
+
 function gon(list, pos, d1, d2, prev, next) {
   g = {pos: pos, d1: d1, d2: d2};
   list.push(g);
@@ -54,8 +71,10 @@ var gui;
 
 var penrose = {
   halfWidth: 80,
-  halfHeight: 30,
+  halfHeight: 80,
   stepHeight: 10,
+  upDir: [0, -1],
+  aspect: 8/3,
   minStepsPerSide: 4
 }
 
@@ -68,7 +87,8 @@ function init() {
   }
   gui = new dat.GUI();
   addredraw(gui.add(penrose, 'halfWidth'));
-  addredraw(gui.add(penrose, 'halfHeight'));
+  //addredraw(gui.add(penrose, 'halfHeight'));
+  addredraw(gui.add(penrose, 'aspect'));
   addredraw(gui.add(penrose, 'stepHeight'));
   addredraw(gui.add(penrose, 'minStepsPerSide')).min(2).step(1);
 
@@ -82,8 +102,19 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   var start = [600, 300];
 
-  var d1 = [penrose.halfWidth, penrose.halfHeight];
-  var d2 = [penrose.halfWidth, penrose.halfHeight];
+  //var d1 = [penrose.halfWidth, penrose.halfHeight];
+  //var d2 = [penrose.halfWidth, penrose.halfHeight];
+
+  var d1 = vnorm([1 * penrose.aspect, 1]);
+  var d2 = [d1[0], d1[1]];
+
+  // Square Steps.
+  penrose.halfHeight = penrose.halfWidth;
+
+  d1 = vmult(d1, penrose.halfWidth);
+  d2 = vmult(d2, penrose.halfHeight);
+
+  var stepRaise = vdot(d1, penrose.upDir) * vmag(penrose.upDir) * -1;
 
   var stepInc = penrose.minStepsPerSide - 1;
 
@@ -92,13 +123,14 @@ function draw() {
   var makeupSteps = 6;
 
   var stepUp = totalSteps * penrose.stepHeight;
+  var stepDir = vmult(penrose.upDir, penrose.stepHeight);
 
   var insert = 0;
 
   // Enable step insertion
   if(true) {
     // For now we only insert in pairs.
-    insert = Math.floor(stepUp/(penrose.halfHeight * 2)) * 2;
+    insert = Math.floor(stepUp/(stepRaise * 2)) * 2;
   }
 
   totalSteps += insert;
@@ -107,14 +139,14 @@ function draw() {
   // Recompute this... seems weird.
   stepUp = totalSteps * penrose.stepHeight;
 
-  var stepUpMinusInsert = stepUp - (insert * penrose.halfHeight)
+  var stepUpMinusInsert = stepUp - (insert * stepRaise)
 
   var makeupStepDown = stepUpMinusInsert / makeupSteps;
 
-  var ddD = 1 + (makeupStepDown / penrose.halfHeight);
+  var ddD = 1 + (makeupStepDown / stepRaise);
 
-  function inc(W, H) {
-    start = [start[0] + W, start[1] + H];
+  function inc(D) {
+    start = [start[0] + D[0], start[1] + D[1]];
   }
 
   gons = [];
@@ -132,7 +164,8 @@ function draw() {
       d[1] *= d2[1];
     }
     for(var i = 0; i < c; i++) {
-      inc(d[0], d[1] - penrose.stepHeight);
+      inc(d);
+      inc(stepDir);
       cur = gon(gons, start, d1, d2, prev, null);
       if(prev)
         prev.next = cur;
@@ -176,10 +209,10 @@ function draw() {
 function mousemove(event, canvas) {
   mPcx = event.clientY/canvas.height;
 
-  penrose.halfHeight = 24 + (6 * mPcx);
-  penrose.halfWidth = 74 + (6 * mPcx);
+  //penrose.halfHeight = 24 + (6 * mPcx);
+  //penrose.halfWidth = 74 + (6 * mPcx);
 
-  penrose.stepHeight = 8 + (2 * mPcx);
+  //penrose.stepHeight = 8 + (2 * mPcx);
 
   draw();
 }
