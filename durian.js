@@ -1,7 +1,9 @@
 var wallDown = 800;
 
-function gon(list, x, y, d1X, d1Y, d2X, d2Y) {
-  list.push({x: x, y: y, d1X: d1X, d1Y: d1Y, d2X: d2X, d2Y: d2Y});
+function gon(list, x, y, d1X, d1Y, d2X, d2Y, prev, next) {
+  g = {x: x, y: y, d1X: d1X, d1Y: d1Y, d2X: d2X, d2Y: d2Y};
+  list.push(g);
+  return g;
 }
 
 function render(ctx, list) {
@@ -57,7 +59,8 @@ var sH = 10;
 var penrose = {
   hW: 80,
   hH: 30,
-  sH: 10
+  sH: 10,
+  minStepsPerSide: 4
 }
 
 function init() {
@@ -65,11 +68,13 @@ function init() {
     controller.onChange(function(value) {
       draw();
     });
+    return controller;
   }
   gui = new dat.GUI();
   addredraw(gui.add(penrose, 'hW'));
   addredraw(gui.add(penrose, 'hH'));
   addredraw(gui.add(penrose, 'sH'));
+  addredraw(gui.add(penrose, 'minStepsPerSide')).min(2).step(1);
 
   canvas = document.getElementById('scene');
   ctx = canvas.getContext('2d');
@@ -90,8 +95,10 @@ function draw() {
   var osX = sX;
   var osY = sY;
 
+  var stepInc = penrose.minStepsPerSide - 1;
+
   // Steps are the up steps, not a platform.
-  var totalSteps = 12;
+  var totalSteps = stepInc;
   var makeupSteps = 6;
 
   var stepUp = totalSteps * penrose.sH;
@@ -123,24 +130,27 @@ function draw() {
 
   gons = [];
 
-  function addGons(dX, dY, c) {
+  function addGons(dX, dY, c, prev) {
+    var cur;
     for(var i = 0; i < c; i++) {
       inc(dX, dY - penrose.sH);
-      gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
+      cur = gon(gons, sX, sY, d1X, d1Y, d2X, d2Y, prev, null);
+      if(prev)
+        prev.next = cur;
+      prev = cur
     }
+    return prev;
   }
 
-  // Start
-
-  gon(gons, sX, sY, d1X, d1Y, d2X, d2Y);
+  var prev = null;
 
   // Up and Right
 
-  addGons(d2X, -d2Y, 3);
+  prev = addGons(d2X, -d2Y, stepInc, prev);
 
   // Up and Left
 
-  addGons(-d1X, -d1Y, 3);
+  prev = addGons(-d1X, -d1Y, stepInc, prev);
 
   var od2X = d2X;
   var od2Y = d2Y;
@@ -152,7 +162,7 @@ function draw() {
 
   // Down and Left
 
-  addGons(-d2X, d2Y, 3 + insert/2);
+  prev = addGons(-d2X, d2Y, stepInc + insert/2, prev);
 
   d2X = od2X;
   d2Y = od2Y;
@@ -163,13 +173,11 @@ function draw() {
   d1X *= ddD;
   d1Y *= ddD;
 
-  addGons(-d2X, d2Y, 1);
-
   // Down and Right
 
-  addGons(d1X, d1Y, 3 + insert/2);
+  prev = addGons(d1X, d1Y, stepInc + insert/2, prev);
 
-  inc(d1X, + d1Y - penrose.sH);
+  prev.next = gons[0];
 
   render(ctx, gons);
 }
