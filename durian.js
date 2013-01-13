@@ -17,6 +17,11 @@ function vmult(a, b) {
   return [a[0] * b, a[1] * b];
 }
 
+function degToDir(deg) {
+  return [Math.sin(deg*Math.PI/180.0),
+          Math.cos(deg*Math.PI/180.0)];
+}
+
 function gon(list, pos, d1, d2, prev, next) {
   g = {pos: pos, d1: d1, d2: d2};
   list.push(g);
@@ -70,12 +75,14 @@ var ctx;
 var gui;
 
 var penrose = {
-  halfWidth: 80,
-  halfHeight: 80,
+  stepX: 80,
+  stepY: 80,
   stepHeight: 10,
-  upDir: [0, -1],
+  stepUpDir: 180,
+  stepXDir: 65,
   aspect: 8/3,
-  minStepsPerSide: 4
+  minStepsPerSide: 4,
+  enableStepInsertion: true
 }
 
 function init() {
@@ -86,11 +93,14 @@ function init() {
     return controller;
   }
   gui = new dat.GUI();
-  addredraw(gui.add(penrose, 'halfWidth'));
-  //addredraw(gui.add(penrose, 'halfHeight'));
-  addredraw(gui.add(penrose, 'aspect'));
+  addredraw(gui.add(penrose, 'stepX'));
+  //addredraw(gui.add(penrose, 'stepY'));
   addredraw(gui.add(penrose, 'stepHeight'));
+  addredraw(gui.add(penrose, 'aspect'));
+  addredraw(gui.add(penrose, 'stepUpDir'));
+  addredraw(gui.add(penrose, 'stepXDir'));
   addredraw(gui.add(penrose, 'minStepsPerSide')).min(2).step(1);
+  addredraw(gui.add(penrose, 'enableStepInsertion'));
 
   canvas = document.getElementById('scene');
   ctx = canvas.getContext('2d');
@@ -102,19 +112,22 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   var start = [600, 300];
 
-  //var d1 = [penrose.halfWidth, penrose.halfHeight];
-  //var d2 = [penrose.halfWidth, penrose.halfHeight];
+  //var d1 = [penrose.stepX, penrose.halfHeight];
+  //var d2 = [penrose.stepY, penrose.halfHeight];
 
   var d1 = vnorm([1 * penrose.aspect, 1]);
+  var d1 = degToDir(penrose.stepXDir);
   var d2 = [d1[0], d1[1]];
 
   // Square Steps.
-  penrose.halfHeight = penrose.halfWidth;
+  penrose.stepY = penrose.stepX;
 
-  d1 = vmult(d1, penrose.halfWidth);
-  d2 = vmult(d2, penrose.halfHeight);
+  d1 = vmult(d1, penrose.stepX);
+  d2 = vmult(d2, penrose.stepY);
 
-  var stepRaise = vdot(d1, penrose.upDir) * vmag(penrose.upDir) * -1;
+  var upDir = degToDir(penrose.stepUpDir);
+
+  var stepRaise = vdot(d1, upDir) * vmag(upDir) * -1;
 
   var stepInc = penrose.minStepsPerSide - 1;
 
@@ -123,12 +136,12 @@ function draw() {
   var makeupSteps = 6;
 
   var stepUp = totalSteps * penrose.stepHeight;
-  var stepDir = vmult(penrose.upDir, penrose.stepHeight);
+  var stepDir = vmult(upDir, penrose.stepHeight);
 
   var insert = 0;
 
   // Enable step insertion
-  if(true) {
+  if(penrose.enableStepInsertion) {
     // For now we only insert in pairs.
     insert = Math.floor(stepUp/(stepRaise * 2)) * 2;
   }
@@ -209,8 +222,8 @@ function draw() {
 function mousemove(event, canvas) {
   mPcx = event.clientY/canvas.height;
 
-  //penrose.halfHeight = 24 + (6 * mPcx);
-  //penrose.halfWidth = 74 + (6 * mPcx);
+  //penrose.stepX = 24 + (6 * mPcx);
+  //penrose.stepY = 74 + (6 * mPcx);
 
   //penrose.stepHeight = 8 + (2 * mPcx);
 
