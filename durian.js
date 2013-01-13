@@ -98,7 +98,7 @@ function draw() {
   var stepInc = penrose.minStepsPerSide - 1;
 
   // Steps are the up steps, not a platform.
-  var totalSteps = stepInc;
+  var totalSteps = stepInc * 4;
   var makeupSteps = 6;
 
   var stepUp = totalSteps * penrose.sH;
@@ -130,9 +130,20 @@ function draw() {
 
   gons = [];
 
-  function addGons(dX, dY, c, prev) {
+  function addGons(dirX, dirY, c, prev) {
     var cur;
     for(var i = 0; i < c; i++) {
+      var dX = dirX;
+      var dY = dirY;
+
+      if(dirX === dirY) {
+        dX *= d1X;
+        dY *= d1Y;
+      }
+      else {
+        dX *= d2X;
+        dY *= d2Y;
+      }
       inc(dX, dY - penrose.sH);
       cur = gon(gons, sX, sY, d1X, d1Y, d2X, d2Y, prev, null);
       if(prev)
@@ -146,11 +157,11 @@ function draw() {
 
   // Up and Right
 
-  prev = addGons(d2X, -d2Y, stepInc, prev);
+  prev = addGons(1, -1, stepInc, prev);
 
   // Up and Left
 
-  prev = addGons(-d1X, -d1Y, stepInc, prev);
+  prev = addGons(-1, -1, stepInc, prev);
 
   var od2X = d2X;
   var od2Y = d2Y;
@@ -162,7 +173,7 @@ function draw() {
 
   // Down and Left
 
-  prev = addGons(-d2X, d2Y, stepInc + insert/2, prev);
+  prev = addGons(-1, 1, stepInc + insert/2, prev);
 
   d2X = od2X;
   d2Y = od2Y;
@@ -175,7 +186,7 @@ function draw() {
 
   // Down and Right
 
-  prev = addGons(d1X, d1Y, stepInc + insert/2, prev);
+  prev = addGons(1, 1, stepInc + insert/2, prev);
 
   prev.next = gons[0];
 
