@@ -1,7 +1,7 @@
 var wallDown = 800;
 
-function gon(list, x, y, d1X, d1Y, d2X, d2Y, prev, next) {
-  g = {x: x, y: y, d1X: d1X, d1Y: d1Y, d2X: d2X, d2Y: d2Y};
+function gon(list, pos, d1, d2, prev, next) {
+  g = {pos: pos, d1: d1, d2: d2};
   list.push(g);
   return g;
 }
@@ -9,16 +9,16 @@ function gon(list, x, y, d1X, d1Y, d2X, d2Y, prev, next) {
 function render(ctx, list) {
 
   list.sort(function(l, r) {
-    return l.y - r.y;
+    return l.pos[1] - r.pos[1];
   });
 
   for(var i = 0; i < list.length; i++) {
     g = list[i];
 
-    var end = g.x + g.d1X + g.d2X;
-    var px = g.d1X / (g.d1X + g.d2X);
+    var end = g.pos[0] + g.d1[0] + g.d2[0];
+    var px = g.d1[0] / (g.d1[0] + g.d2[0]);
 
-    var wall = ctx.createLinearGradient(g.x, 0, end, 0);
+    var wall = ctx.createLinearGradient(g.pos[0], 0, end, 0);
     wall.addColorStop(0.0, "rgb(50, 50, 50)");
     wall.addColorStop(px, "rgb(50, 50, 50)");
     wall.addColorStop(px, "rgb(100, 100, 100)");
@@ -26,13 +26,13 @@ function render(ctx, list) {
 
     ctx.fillStyle = wall;
     ctx.beginPath();
-    ctx.moveTo(g.x, g.y);
-    ctx.lineTo(g.x, g.y + wallDown);
-    ctx.lineTo(g.x + g.d1X + g.d2X, g.y + wallDown);
-    ctx.lineTo(g.x + g.d1X + g.d2X, g.y + g.d1Y - g.d2Y);
+    ctx.moveTo(g.pos[0], g.pos[1]);
+    ctx.lineTo(g.pos[0], g.pos[1] + wallDown);
+    ctx.lineTo(g.pos[0] + g.d1[0] + g.d2[0], g.pos[1] + wallDown);
+    ctx.lineTo(g.pos[0] + g.d1[0] + g.d2[0], g.pos[1] + g.d1[1] - g.d2[1]);
     ctx.fill();
 
-    var grad = ctx.createLinearGradient(g.x, g.y, g.x + g.d1X, g.y + g.d1Y);
+    var grad = ctx.createLinearGradient(g.pos[0], g.pos[1], g.pos[0] + g.d1[0], g.pos[1] + g.d1[1]);
     grad.addColorStop(0.4, "rgb(0, 0, 100)");
     grad.addColorStop(1, "rgb(100, 0, 0)");
 
@@ -40,10 +40,10 @@ function render(ctx, list) {
     ctx.fillStyle = grad;
 
     ctx.beginPath();
-    ctx.moveTo(g.x, g.y);
-    ctx.lineTo(g.x + g.d1X, g.y + g.d1Y);
-    ctx.lineTo(g.x + g.d1X + g.d2X, g.y + g.d1Y - g.d2Y);
-    ctx.lineTo(g.x + g.d2X, g.y - g.d2Y);
+    ctx.moveTo(g.pos[0], g.pos[1]);
+    ctx.lineTo(g.pos[0] + g.d1[0], g.pos[1] + g.d1[1]);
+    ctx.lineTo(g.pos[0] + g.d1[0] + g.d2[0], g.pos[1] + g.d1[1] - g.d2[1]);
+    ctx.lineTo(g.pos[0] + g.d2[0], g.pos[1] - g.d2[1]);
     ctx.fill();
   }
 }
@@ -52,14 +52,10 @@ var canvas;
 var ctx;
 var gui;
 
-var hW = 80;
-var hH = 30;
-var sH = 10;
-
 var penrose = {
-  hW: 80,
-  hH: 30,
-  sH: 10,
+  halfWidth: 80,
+  halfHeight: 30,
+  stepHeight: 10,
   minStepsPerSide: 4
 }
 
@@ -71,9 +67,9 @@ function init() {
     return controller;
   }
   gui = new dat.GUI();
-  addredraw(gui.add(penrose, 'hW'));
-  addredraw(gui.add(penrose, 'hH'));
-  addredraw(gui.add(penrose, 'sH'));
+  addredraw(gui.add(penrose, 'halfWidth'));
+  addredraw(gui.add(penrose, 'halfHeight'));
+  addredraw(gui.add(penrose, 'stepHeight'));
   addredraw(gui.add(penrose, 'minStepsPerSide')).min(2).step(1);
 
   canvas = document.getElementById('scene');
@@ -84,16 +80,12 @@ function init() {
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  var sX = 600;
-  var sY = 300;
+  var start = [600, 300];
 
-  var d1X = penrose.hW;
-  var d1Y = penrose.hH;
-  var d2X = penrose.hW;
-  var d2Y = penrose.hH;
+  var d1 = [penrose.halfWidth, penrose.halfHeight];
+  var d2 = [penrose.halfWidth, penrose.halfHeight];
 
-  var osX = sX;
-  var osY = sY;
+  //var ostart = [start[0], start[1]];
 
   var stepInc = penrose.minStepsPerSide - 1;
 
@@ -101,51 +93,49 @@ function draw() {
   var totalSteps = stepInc * 4;
   var makeupSteps = 6;
 
-  var stepUp = totalSteps * penrose.sH;
+  var stepUp = totalSteps * penrose.stepHeight;
 
   var insert = 0;
 
   // Enable step insertion
   if(true) {
     // For now we only insert in pairs.
-    insert = Math.floor(stepUp/(hH * 2)) * 2;
+    insert = Math.floor(stepUp/(penrose.halfHeight * 2)) * 2;
   }
 
   totalSteps += insert;
   makeupSteps += insert;
 
   // Recompute this... seems weird.
-  stepUp = totalSteps * penrose.sH;
+  stepUp = totalSteps * penrose.stepHeight;
 
-  var stepUpMinusInsert = stepUp - (insert * hH)
+  var stepUpMinusInsert = stepUp - (insert * penrose.halfHeight)
 
   var makeupStepDown = stepUpMinusInsert / makeupSteps;
 
-  var ddD = 1 + (makeupStepDown / hH);
+  var ddD = 1 + (makeupStepDown / penrose.halfHeight);
 
   function inc(W, H) {
-    sX += W;
-    sY += H;
+    start = [start[0] + W, start[1] + H];
   }
 
   gons = [];
 
-  function addGons(dirX, dirY, c, prev) {
+  function addGons(dir, c, prev) {
     var cur;
     for(var i = 0; i < c; i++) {
-      var dX = dirX;
-      var dY = dirY;
+      var d = [dir[0], dir[1]];
 
-      if(dirX === dirY) {
-        dX *= d1X;
-        dY *= d1Y;
+      if(dir[0] === dir[1]) {
+        d[0] *= d1[0];
+        d[1] *= d1[1];
       }
       else {
-        dX *= d2X;
-        dY *= d2Y;
+        d[0] *= d2[0];
+        d[1] *= d2[1];
       }
-      inc(dX, dY - penrose.sH);
-      cur = gon(gons, sX, sY, d1X, d1Y, d2X, d2Y, prev, null);
+      inc(d[0], d[1] - penrose.stepHeight);
+      cur = gon(gons, start, d1, d2, prev, null);
       if(prev)
         prev.next = cur;
       prev = cur
@@ -157,36 +147,30 @@ function draw() {
 
   // Up and Right
 
-  prev = addGons(1, -1, stepInc, prev);
+  prev = addGons([1, -1], stepInc, prev);
 
   // Up and Left
 
-  prev = addGons(-1, -1, stepInc, prev);
+  prev = addGons([-1, -1], stepInc, prev);
 
-  var od2X = d2X;
-  var od2Y = d2Y;
-  d2X *= ddD;
-  d2Y *= ddD;
-
-  //hH *= 1.3;
-  //hW *= 1.3;
+  var od2 = [d2[0], d2[1]];
+  d2[0] *= ddD;
+  d2[1] *= ddD;
 
   // Down and Left
 
-  prev = addGons(-1, 1, stepInc + insert/2, prev);
+  prev = addGons([-1, 1], stepInc + insert/2, prev);
 
-  d2X = od2X;
-  d2Y = od2Y;
+  d2 = [od2[0], od2[1]];
 
-  var od1X = d1X;
-  var od1Y = d1Y;
+  var od1 = [d1[0], d1[1]];
 
-  d1X *= ddD;
-  d1Y *= ddD;
+  d1[0] *= ddD;
+  d1[1] *= ddD;
 
   // Down and Right
 
-  prev = addGons(1, 1, stepInc + insert/2, prev);
+  prev = addGons([1, 1], stepInc + insert/2, prev);
 
   prev.next = gons[0];
 
@@ -196,10 +180,10 @@ function draw() {
 function mousemove(event, canvas) {
   mPcx = event.clientY/canvas.height;
 
-  penrose.hH = 24 + (6 * mPcx);
-  penrose.hW = 74 + (6 * mPcx);
+  penrose.halfHeight = 24 + (6 * mPcx);
+  penrose.halfWidth = 74 + (6 * mPcx);
 
-  penrose.sH = 8 + (2 * mPcx);
+  penrose.stepHeight = 8 + (2 * mPcx);
 
   draw();
 }
