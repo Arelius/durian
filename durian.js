@@ -85,8 +85,6 @@ function draw() {
   var d1 = [penrose.halfWidth, penrose.halfHeight];
   var d2 = [penrose.halfWidth, penrose.halfHeight];
 
-  //var ostart = [start[0], start[1]];
-
   var stepInc = penrose.minStepsPerSide - 1;
 
   // Steps are the up steps, not a platform.
@@ -123,17 +121,17 @@ function draw() {
 
   function addGons(dir, c, prev) {
     var cur;
-    for(var i = 0; i < c; i++) {
-      var d = [dir[0], dir[1]];
+    var d = [dir[0], dir[1]];
 
-      if(dir[0] === dir[1]) {
-        d[0] *= d1[0];
-        d[1] *= d1[1];
-      }
-      else {
-        d[0] *= d2[0];
-        d[1] *= d2[1];
-      }
+    if(dir[0] === dir[1]) {
+      d[0] *= d1[0];
+      d[1] *= d1[1];
+    }
+    else {
+      d[0] *= d2[0];
+      d[1] *= d2[1];
+    }
+    for(var i = 0; i < c; i++) {
       inc(d[0], d[1] - penrose.stepHeight);
       cur = gon(gons, start, d1, d2, prev, null);
       if(prev)
@@ -154,8 +152,7 @@ function draw() {
   prev = addGons([-1, -1], stepInc, prev);
 
   var od2 = [d2[0], d2[1]];
-  d2[0] *= ddD;
-  d2[1] *= ddD;
+  d2 = [d2[0] * ddD, d2[1] * ddD];
 
   // Down and Left
 
@@ -165,8 +162,7 @@ function draw() {
 
   var od1 = [d1[0], d1[1]];
 
-  d1[0] *= ddD;
-  d1[1] *= ddD;
+  d1 = [d1[0] * ddD, d1[1] * ddD];
 
   // Down and Right
 
