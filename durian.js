@@ -1,3 +1,5 @@
+"use strict";
+
 var wallDown = 800;
 
 function vmag(a) {
@@ -23,7 +25,7 @@ function degToDir(deg) {
 }
 
 function gon(list, pos, d1, d2, prev, next) {
-  g = {pos: pos, d1: d1, d2: d2};
+  var g = {pos: pos, d1: d1, d2: d2};
   list.push(g);
   return g;
 }
@@ -35,7 +37,7 @@ function render(ctx, list) {
   });
 
   for(var i = 0; i < list.length; i++) {
-    g = list[i];
+    var g = list[i];
 
     var end = g.pos[0] + g.d1[0] + g.d2[0];
     var px = g.d1[0] / (g.d1[0] + g.d2[0]);
@@ -162,7 +164,7 @@ function draw() {
     start = [start[0] + D[0], start[1] + D[1]];
   }
 
-  gons = [];
+  var gons = [];
 
   function addGons(dir, c, prev) {
     var cur;
@@ -220,7 +222,7 @@ function draw() {
 }
 
 function mousemove(event, canvas) {
-  mPcx = event.clientY/canvas.height;
+  var mPcx = event.clientY/canvas.height;
 
   //penrose.stepX = 24 + (6 * mPcx);
   //penrose.stepY = 74 + (6 * mPcx);
