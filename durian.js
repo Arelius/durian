@@ -114,22 +114,27 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   var start = [600, 300];
 
-  //var d1 = [penrose.stepX, penrose.halfHeight];
-  //var d2 = [penrose.stepY, penrose.halfHeight];
 
-  var d1 = vnorm([1 * penrose.aspect, 1]);
+  // Step Info
+
   var d1 = degToDir(penrose.stepXDir);
-  var d2 = [d1[0], d1[1]];
+
+  var step = {
+    'd1': d1,
+    'd2': [d1[0], d1[1]]
+  }
 
   // Square Steps.
   penrose.stepY = penrose.stepX;
 
-  d1 = vmult(d1, penrose.stepX);
-  d2 = vmult(d2, penrose.stepY);
+  step.d1 = vmult(step.d1, penrose.stepX);
+  step.d2 = vmult(step.d2, penrose.stepY);
 
-  var upDir = degToDir(penrose.stepUpDir);
+  step.upDir = degToDir(penrose.stepUpDir);
 
-  var stepRaise = vdot(d1, upDir) * vmag(upDir) * -1;
+  step.stepRaise = vdot(step.d1, step.upDir) * vmag(step.upDir) * -1;
+
+  // Case Info
 
   var stepInc = penrose.minStepsPerSide - 1;
 
@@ -138,14 +143,14 @@ function draw() {
   var makeupSteps = 4;
 
   var stepUp = totalSteps * penrose.stepHeight;
-  var stepDir = vmult(upDir, penrose.stepHeight);
+  var stepDir = vmult(step.upDir, penrose.stepHeight);
 
   var insert = 0;
 
   // Enable step insertion
   if(penrose.enableStepInsertion) {
     // For now we only insert in pairs.
-    insert = Math.floor(stepUp/(stepRaise * 2)) * 2;
+    insert = Math.floor(stepUp/(step.stepRaise * 2)) * 2;
   }
 
   totalSteps += insert;
@@ -154,11 +159,11 @@ function draw() {
   // Recompute this... seems weird.
   stepUp = totalSteps * penrose.stepHeight;
 
-  var stepUpMinusInsert = stepUp - (insert * stepRaise)
+  var stepUpMinusInsert = stepUp - (insert * step.stepRaise)
 
   var makeupStepDown = stepUpMinusInsert / makeupSteps;
 
-  var ddD = 1 + (makeupStepDown / stepRaise);
+  var ddD = 1 + (makeupStepDown / step.stepRaise);
 
   function inc(D) {
     start = [start[0] + D[0], start[1] + D[1]];
@@ -166,7 +171,7 @@ function draw() {
 
   var gons = [];
 
-  function addGons(dir, c, prev) {
+  function addGons(dir, c, prev, d1, d2) {
     var cur;
     var d = [dir[0], dir[1]];
 
@@ -193,34 +198,27 @@ function draw() {
 
   // Up and Right
 
-  prev = addGons([1, -1], stepInc, prev);
+  prev = addGons([1, -1], stepInc, prev, step.d1, step.d2);
 
   // Up and Left
 
-  prev = addGons([-1, -1], stepInc, prev);
+  prev = addGons([-1, -1], stepInc, prev, step.d1, step.d2);
 
-  var od2 = [d2[0], d2[1]];
-  d2 = [d2[0] * ddD, d2[1] * ddD];
+  var d2 = [step.d2[0] * ddD, step.d2[1] * ddD];
 
   // Down and Left
 
-  prev = addGons([-1, 1], stepInc + insert/2 - 1, prev);
+  prev = addGons([-1, 1], stepInc + insert/2 - 1, prev, step.d1, d2);
 
-  d2 = [od2[0], od2[1]];
+  var d1 = [step.d1[0] * ddD, step.d1[1] * ddD];
 
-  var od1 = [d1[0], d1[1]];
-
-  d1 = [d1[0] * ddD, d1[1] * ddD];
-
-  prev = addGons([-1, 1], 1, prev);
+  prev = addGons([-1, 1], 1, prev, d1, step.d2);
 
   // Down and Right
 
-  prev = addGons([1, 1], stepInc + insert/2 - 1, prev);
+  prev = addGons([1, 1], stepInc + insert/2 - 1, prev, d1, step.d2);
 
-  d1 = [od1[0], od2[1]];
-
-  prev = addGons([1, 1], 1, prev);
+  prev = addGons([1, 1], 1, prev, step.d1, step.d2);
 
   prev.next = gons[0];
 
