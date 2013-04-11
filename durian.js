@@ -135,7 +135,7 @@ function draw() {
 
   // Steps are the up steps, not a platform.
   var totalSteps = stepInc * 4;
-  var makeupSteps = 6;
+  var makeupSteps = 4;
 
   var stepUp = totalSteps * penrose.stepHeight;
   var stepDir = vmult(upDir, penrose.stepHeight);
@@ -204,7 +204,7 @@ function draw() {
 
   // Down and Left
 
-  prev = addGons([-1, 1], stepInc + insert/2, prev);
+  prev = addGons([-1, 1], stepInc + insert/2 - 1, prev);
 
   d2 = [od2[0], od2[1]];
 
@@ -212,9 +212,15 @@ function draw() {
 
   d1 = [d1[0] * ddD, d1[1] * ddD];
 
+  prev = addGons([-1, 1], 1, prev);
+
   // Down and Right
 
-  prev = addGons([1, 1], stepInc + insert/2, prev);
+  prev = addGons([1, 1], stepInc + insert/2 - 1, prev);
+
+  d1 = [od1[0], od2[1]];
+
+  prev = addGons([1, 1], 1, prev);
 
   prev.next = gons[0];
 
