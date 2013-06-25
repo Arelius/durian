@@ -78,7 +78,6 @@ var gui;
 
 var penrose = {
   stepX: 80,
-  stepY: 80,
   stepHeight: 10,
   stepUpDir: 180,
   stepXDir: 65,
@@ -96,7 +95,6 @@ function init() {
   }
   gui = new dat.GUI();
   addredraw(gui.add(penrose, 'stepX'));
-  //addredraw(gui.add(penrose, 'stepY'));
   addredraw(gui.add(penrose, 'stepHeight'));
   addredraw(gui.add(penrose, 'aspect'));
   addredraw(gui.add(penrose, 'stepUpDir'));
@@ -117,18 +115,13 @@ function draw() {
 
   // Step Info
 
-  var d1 = degToDir(penrose.stepXDir);
-
-  var step = {
-    'd1': d1,
-    'd2': [d1[0], d1[1]]
-  }
-
-  // Square Steps.
-  penrose.stepY = penrose.stepX;
-
-  step.d1 = vmult(step.d1, penrose.stepX);
-  step.d2 = vmult(step.d2, penrose.stepY);
+  var step = {};
+  step.width = penrose.stepX;
+  step.height = step.width;
+  step.d1 = [0, step.height];
+  step.d2 = [step.width, 0];
+  step.d1 = vmult(degToDir(penrose.stepXDir), penrose.stepX);
+  step.d2 = [step.d1[0], step.d1[1]];
 
   step.upDir = degToDir(penrose.stepUpDir);
 
@@ -176,10 +169,12 @@ function draw() {
     var d = [dir[0], dir[1]];
 
     if(dir[0] === dir[1]) {
+      // Up-Left or Down-Right
       d[0] *= d1[0];
       d[1] *= d1[1];
     }
     else {
+      // Up-Right or Down-Left
       d[0] *= d2[0];
       d[1] *= d2[1];
     }
@@ -227,11 +222,5 @@ function draw() {
 
 function mousemove(event, canvas) {
   var mPcx = event.clientY/canvas.height;
-
-  //penrose.stepX = 24 + (6 * mPcx);
-  //penrose.stepY = 74 + (6 * mPcx);
-
-  //penrose.stepHeight = 8 + (2 * mPcx);
-
   draw();
 }
